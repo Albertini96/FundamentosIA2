@@ -15,9 +15,5 @@ arvore.dfs_traversal(final_state);
 Recriar o algoritmo ID3 para a construção de árvores de decisão baseadas em entropia.
 
 ```
-ds = pd.read_excel('Base.xlsx')
-
-print(get_all_entropy(ds))
-print(get_info(ds))
-print(calculate_gain(ds))
+decision_tree = create_decision_tree(iris_ds)
 ```
