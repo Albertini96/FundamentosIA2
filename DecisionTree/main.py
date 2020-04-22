@@ -2,8 +2,9 @@
 
 import pandas as pd
 from numpy import log2
+import numpy as np
 import operator
-
+from sklearn.datasets import load_iris
 
 #Calculates simple entropy
 #0 if all samples has same y
@@ -96,32 +97,43 @@ def calculate_gain(ds):
 
     return sorted_d
 
-
+#Create decision tree
 def create_decision_tree(ds):
     
-    ds_gain = calculate_gain(ds)
-
-    tree_dict = dict()
+    decision_tree = dict()
     
+    last_col = ds.iloc[:, - 1].name
+    
+    ds_gain = calculate_gain(ds)
     curr_col = list(ds_gain.keys())[0]    
+
     unique_vals = ds[curr_col].unique().tolist()
     
-    print(unique_vals)
-    for i in ds_gain:
-        print(i)
+    tb = ds.groupby([curr_col, last_col]).size().reset_index(name='Count')        
+    decision_tree[curr_col] = dict()
+    for i in unique_vals:
+        #Counting Occurrencies
+        occ = tb[curr_col].tolist().count(i)
+        
+        if occ == 1:
+            decision_tree[curr_col][i] = tb[tb[curr_col] == i][last_col].values[0]
+        else:
+            
+            split_subset = ds[ds[curr_col] == i].reset_index(drop=True)
+            decision_tree[curr_col][i] = create_decision_tree(split_subset)
+            
+    return decision_tree
 
+
+iris = load_iris()
+
+iris_ds = pd.DataFrame(data= np.c_[iris['data'], iris['target']],
+                     columns= iris['feature_names'] + ['target'])
 
 ds = pd.read_excel('Base.xlsx')
 
-create_decision_tree(ds)
-
-#print(ds)
-#print()
-#print(get_all_entropy(ds))
-#print()
-#print(get_info(ds))
-#print()
-#print(calculate_gain(ds))
+decision_tree = create_decision_tree(iris_ds)
+print(decision_tree)
 
     
     
